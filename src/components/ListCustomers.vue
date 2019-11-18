@@ -62,12 +62,15 @@
              <div class="col s12" style="padding : 40px;">
              	<div class="input-field col s12">
 		          <input placeholder="First Name" type="text" class="" v-model="currentUpdating.first_name">
+        		  <div  style="font-size : 10px; " class="left red-text" v-if="firstNameValidateLength">*{{firstNameValidateLength}}</div>
 		        </div>
 		        <div class="input-field col s12">
 		          <input placeholder="Last Name" type="text" class="validate" v-model="currentUpdating.last_name">
+        		  <div  style="font-size : 10px; " class="left red-text" v-if="lastNameValidateLength">*{{lastNameValidateLength}}</div>
 		        </div>
 		        <div class="input-field col s12">
 		          <input placeholder="Email" type="text" class="validate"  v-model="currentUpdating.email">
+         		  <div  style="font-size : 10px; " class="left red-text" v-if="inputEmail">*{{inputEmail}}</div>
 		        </div>
              </div>
             </slot>
@@ -102,7 +105,8 @@ export default {
       modalActiveClass : '',
       currentUpdating : null,
       loading : true,
-      disable : false
+      disable : false,
+      flag : true
     };
   },
   created() {
@@ -142,19 +146,55 @@ export default {
     	this.currentUpdating = this.target_customers[Index]
     },
     updateCustomer(obj){
-    	this.disable = true
-    	axios({
-         url : `https://reqres.in/api/users/${obj.id}`,
-         method : 'PUT',
-         data : { obj }
-    	}).then(response=>{
-           console.log('Customer Updated')
-           console.log(`https://reqres.in/api/users/${obj.id}`)
-           this.showModal = false
-           this.disable = false
-    	})
+    	if(this.flag){
+    		this.disable = true
+	    	axios({
+	         url : `https://reqres.in/api/users/${obj.id}`,
+	         method : 'PUT',
+	         data : { obj }
+	    	}).then(response=>{
+	           console.log('Customer Updated')
+	           console.log(`https://reqres.in/api/users/${obj.id}`)
+	           this.showModal = false
+	           this.disable = false
+	    	})
+    	}
     },
   },
+  computed : {
+  	 inputEmail(){
+              if(!(/^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/.test(this.currentUpdating.email)) || this.currentUpdating.email == ''){
+              	this.flag = false
+              	return 'Email Formate!'
+              }
+              this.flag = true
+              return false
+        },
+    firstNameValidateLength(){
+       if(this.currentUpdating.first_name.length > 20){
+       	  this.flag = false
+          return 'First Name Should be less than 20'
+       }
+       if(this.currentUpdating.first_name.length < 3){
+       	this.flag = false
+       	return 'First Name Should be more than 3'
+       }
+          this.flag = true
+          return false
+    },
+    lastNameValidateLength(){
+        if(this.currentUpdating.last_name.length > 20){
+        	 this.flag = false
+          return 'Last Name Should be less than 20'
+        }
+       if(this.currentUpdating.last_name.length < 3){
+       	 this.flag = false
+       	 return 'Last Name Should be more than 3'
+       }
+          this.flag = true
+          return false
+    },
+  }
 };
 
 </script>
